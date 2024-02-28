@@ -1,3 +1,17 @@
+#next section added to init the db on the deployment.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    db: polar-postgres
+data:
+  init.sql: |
+    CREATE DATABASE polardb_catalog;
+    CREATE DATABASE polardb_order;
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,6 +44,13 @@ spec:
             limits:
               cpu: 200m
               memory: 120Mi
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-config-volume
+      volumes:
+        - name: postgres-config-volume
+          configMap:
+            name: postgres-config
 
 ---
 
